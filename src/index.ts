@@ -1,44 +1,46 @@
 import { Context, Schema, Service } from 'koishi'
-import { DbOptions, MongoClient } from 'mongodb'
 
-export const name = 'mahjong'
+import { DatabaseProvider } from './database'
+import { MajsoulProvider } from './majsoul'
 
-export interface Config {
-  databaseUri: string
+type NestedServices = {
+  [K in keyof Mahjong.Services as `mahjong.${K}`]: Mahjong.Services[K]
 }
 
-export const Config: Schema<Config> = Schema.object({
-  databaseUri: Schema.string().default("mongodb://localhost:27017/")
-})
-
 declare module 'koishi' {
-  interface Context {
+  interface Context extends NestedServices {
     mahjong: Mahjong
   }
 }
 
-class Mahjong extends Service {
-  public client: MongoClient
+export interface Mahjong extends Mahjong.Services {}
 
-  constructor(ctx: Context, private config: Config) {
-    super(ctx, name, false)
+
+export class Mahjong extends Service {
+
+  constructor(ctx: Context, private config: Mahjong.Config) {
+    super(ctx, 'mahjong', true)
+    ctx.plugin(DatabaseProvider)
+    ctx.plugin(MajsoulProvider)
+  }
+}
+
+export namespace Mahjong {
+  export interface Services {
+    db: DatabaseProvider
+    ms: MajsoulProvider
   }
 
-  async start() {
-    const url = this.config.databaseUri
-    this.client = await MongoClient.connect(url)    
+  export interface Config {
+    database: DatabaseProvider.Config
+    majsoul: MajsoulProvider.Config
   }
-
-  stop() {
-    if (this.client) return this.client.close()
-  }
-
-  public db(name: string, options?: DbOptions) {
-    return this.client.db(name, options)
-  }
+  
+  export const Config: Schema<Config> = Schema.object({
+    database: DatabaseProvider.Config,
+    majsoul: MajsoulProvider.Config,
+  })
 
 }
 
-export function apply(ctx: Context, config: Config) {
-  ctx.plugin(Mahjong, config)
-}
+export default Mahjong
