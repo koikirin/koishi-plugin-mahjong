@@ -61,11 +61,14 @@ export class MajsoulProvider extends Provider {
   }
 
   async queryNicknameFromAccountId(account_id: number) {
-    return (await this.ctx.mahjong.db.db('majsoul').collection('account_map').findOne({_id: account_id}))?.nickname
+    return (await this.ctx.mahjong.db.db('majsoul').collection('account_map')
+    // @ts-ignore
+      .findOne({_id: account_id}))?.nickname
   }
 
   async queryMultiNicknameFromAccountId(account_ids: number[]) {
     let cursor = this.ctx.mahjong.db.db('majsoul').collection('account_map').find(
+      // @ts-ignore
       { _id: { $in: account_ids } }
     )
     let ret: {
@@ -101,6 +104,7 @@ export class MajsoulProvider extends Provider {
 
   setAccountMap(account_id: number, nickname: string, starttime: number = 0) {
     return this.ctx.mahjong.db.db('majsoul').collection('account_map').updateOne(
+      // @ts-ignore
       { _id: account_id }, {$setOnInsert: {
         _id: account_id,
         nickname,
