@@ -1,5 +1,5 @@
 import { Context, Schema } from 'koishi'
-import { DbOptions, MongoClient } from 'mongodb'
+import { DbOptions, Document, MongoClient } from 'mongodb'
 import { Provider } from './service'
 
 export class DatabaseProvider extends Provider {
@@ -32,4 +32,6 @@ export namespace DatabaseProvider {
     databaseUri: Schema.string().default('mongodb://localhost:27017/')
   }).description('Database')
   
+  export type IdDocument<T> = { _id: T } & Document
+
 }

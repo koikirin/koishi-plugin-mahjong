@@ -1,5 +1,4 @@
 import { Context, Schema, Service } from 'koishi'
-
 import { DatabaseProvider } from './database'
 import { MajsoulProvider } from './majsoul'
 
@@ -14,7 +13,6 @@ declare module 'koishi' {
 }
 
 export interface Mahjong extends Mahjong.Services {}
-
 
 export class Mahjong extends Service {
 
