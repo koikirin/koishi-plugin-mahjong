@@ -5,7 +5,6 @@ import { Provider } from './service'
 
 export class MajsoulProvider extends Provider {
   static using = ['mahjong.db']
-  public s: string = 'aaa'
   private http: Quester
 
   constructor(ctx: Context, private config: MajsoulProvider.Config) {
@@ -48,6 +47,16 @@ export class MajsoulProvider extends Provider {
         data: JSON.stringify({
           contest_id: fid
         })
+      },
+      ...config
+    })
+  }
+
+  execute(func: string, data: object, config?: AxiosRequestConfig) {
+    return this.http.get(`${this.config.gatewayUri}/execute`, {
+      params: {
+        func: func,
+        data: JSON.stringify(data)
       },
       ...config
     })

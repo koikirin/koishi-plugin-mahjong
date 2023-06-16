@@ -1,7 +1,7 @@
 {
   "name": "@hieuzest/koishi-plugin-mahjong",
   "description": "Provide service for mahjong backend",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
