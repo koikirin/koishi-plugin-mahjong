@@ -5,6 +5,7 @@ import { Provider } from './service'
 
 export class MajsoulProvider extends Provider {
   static using = ['mahjong.db']
+
   private http: Quester
 
   constructor(ctx: Context, private config: MajsoulProvider.Config) {

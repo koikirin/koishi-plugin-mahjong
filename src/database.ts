@@ -5,13 +5,12 @@ import { Provider } from './service'
 export class DatabaseProvider extends Provider {
   public client: MongoClient
 
-  constructor(ctx: Context) {
+  constructor(ctx: Context, private config: DatabaseProvider.Config) {
     super(ctx, 'db', { immediate: false })
   }
 
   async start() {
-    const url = 'mongodb://localhost:27017/'
-    this.client = await MongoClient.connect(url)
+    this.client = await MongoClient.connect(this.config.databaseUri)
   }
 
   stop() {
