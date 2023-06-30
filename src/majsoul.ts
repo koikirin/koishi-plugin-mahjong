@@ -4,45 +4,45 @@ import { DatabaseProvider } from './database'
 import { Provider } from './service'
 
 export class MajsoulProvider extends Provider {
-  static using = ['mahjong.db']
+  static using = ['mahjong.database']
 
   private http: Quester
 
   constructor(ctx: Context, private config: MajsoulProvider.Config) {
-    super(ctx, 'ms', { immediate: true })
+    super(ctx, 'majsoul', { immediate: true })
     this.http = ctx.http.extend({})
   }
 
-  getPaipuHead(uuid: string, config?: AxiosRequestConfig) {
-    return this.http.get(`${this.config.gatewayUri}/paipu_head`, {
+  getPaipuHead<T=any>(uuid: string, config?: AxiosRequestConfig) {
+    return this.http.get<T>(`${this.config.gatewayUri}/paipu_head`, {
       params: { uuid },
       ...config
     })
   }
 
-  getPaipu(uuid: string, config?: AxiosRequestConfig) {
-    return this.http.get(`${this.config.gatewayUri}/paipu`, {
+  getPaipu<T=any>(uuid: string, config?: AxiosRequestConfig) {
+    return this.http.get<T>(`${this.config.gatewayUri}/paipu`, {
       params: { uuid },
       ...config
     })
   }
   
-  getObToken(uuid: string, config?: AxiosRequestConfig) {
-    return this.http.get(`${this.config.gatewayUri}/token`, {
+  getObToken<T=any>(uuid: string, config?: AxiosRequestConfig) {
+    return this.http.get<T>(`${this.config.gatewayUri}/token`, {
       params: { uuid },
       ...config
     })
   }
 
-  getLivelist(fid: string, config?: AxiosRequestConfig) {
-    return this.http.get(`${this.config.gatewayUri}/livelist`, {
+  getLivelist<T=any>(fid: string, config?: AxiosRequestConfig) {
+    return this.http.get<T>(`${this.config.gatewayUri}/livelist`, {
       params: { id: fid },
       ...config
     })
   }
 
-  getContest(fid: string, config?: AxiosRequestConfig) {
-    return this.http.get(`${this.config.gatewayUri}/execute`, {
+  getContest<T=any>(fid: string, config?: AxiosRequestConfig) {
+    return this.http.get<T>(`${this.config.gatewayUri}/execute`, {
       params: {
         func: 'fetchCustomizedContestByContestId',
         data: JSON.stringify({
@@ -53,8 +53,8 @@ export class MajsoulProvider extends Provider {
     })
   }
 
-  execute(func: string, data: object, config?: AxiosRequestConfig) {
-    return this.http.get(`${this.config.gatewayUri}/execute`, {
+  execute<T=any>(func: string, data: object, config?: AxiosRequestConfig) {
+    return this.http.get<T>(`${this.config.gatewayUri}/execute`, {
       params: {
         func: func,
         data: JSON.stringify(data)
@@ -72,12 +72,12 @@ export class MajsoulProvider extends Provider {
   }
 
   async queryNicknameFromAccountId(account_id: number) {
-    return (await this.ctx.mahjong.db.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map')
+    return (await this.ctx.mahjong.database.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map')
       .findOne({_id: account_id}))?.nickname
   }
 
   async queryMultiNicknameFromAccountId(account_ids: number[]) {
-    let cursor = this.ctx.mahjong.db.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map').find(
+    let cursor = this.ctx.mahjong.database.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map').find(
       { _id: { $in: account_ids } }
     )
     let ret: {
@@ -89,14 +89,14 @@ export class MajsoulProvider extends Provider {
   }
 
   async queryAccountIdFromNickname(nickname: string) {
-    let cursor = this.ctx.mahjong.db.db('majsoul').collection('account_map').find({nickname})
+    let cursor = this.ctx.mahjong.database.db('majsoul').collection('account_map').find({nickname})
     let ret: number[] = []
     for await(const doc of cursor) ret.push(<number><any>doc._id)
     return ret
   }
 
   async queryMultiAccountIdFromNickname(nicknames: string[]) {
-    let cursor = this.ctx.mahjong.db.db('majsoul').collection('account_map').find(
+    let cursor = this.ctx.mahjong.database.db('majsoul').collection('account_map').find(
       { nickname: { $in: nicknames } }
     )
     let ret: {
@@ -112,7 +112,7 @@ export class MajsoulProvider extends Provider {
   }
 
   setAccountMap(account_id: number, nickname: string, starttime: number = 0) {
-    return this.ctx.mahjong.db.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map').updateOne(
+    return this.ctx.mahjong.database.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map').updateOne(
       { _id: account_id }, {$setOnInsert: {
         _id: account_id,
         nickname,

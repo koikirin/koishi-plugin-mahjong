@@ -25,8 +25,8 @@ export class Mahjong extends Service {
 
 export namespace Mahjong {
   export interface Services {
-    db: DatabaseProvider
-    ms: MajsoulProvider
+    database: DatabaseProvider
+    majsoul: MajsoulProvider
   }
 
   export interface Config {

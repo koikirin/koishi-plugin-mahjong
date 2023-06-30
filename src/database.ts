@@ -6,7 +6,7 @@ export class DatabaseProvider extends Provider {
   public client: MongoClient
 
   constructor(ctx: Context, private config: DatabaseProvider.Config) {
-    super(ctx, 'db', { immediate: false })
+    super(ctx, 'database', { immediate: false })
   }
 
   async start() {
