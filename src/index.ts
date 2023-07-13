@@ -17,7 +17,7 @@ export interface Mahjong extends Mahjong.Services {}
 export class Mahjong extends Service {
 
   constructor(ctx: Context, private config: Mahjong.Config) {
-    super(ctx, 'mahjong', true)
+    super(ctx, 'mahjong')
     ctx.plugin(DatabaseProvider)
     ctx.plugin(MajsoulProvider)
   }

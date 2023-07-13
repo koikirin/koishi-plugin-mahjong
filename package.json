@@ -23,7 +23,8 @@
   },
   "koishi": {
     "service": {
-      "implements": ["mahjong"]
+      "implements": ["mahjong"],
+      "required": ["database"]
     },
     "hidden": true
   }
