@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from 'axios'
 import { Context, Quester, Schema } from 'koishi'
-import { DatabaseProvider } from './database'
+import { DatabaseProvider, IdDocument } from './database'
 import { Provider } from './service'
 
 export class MajsoulProvider extends Provider {
@@ -63,21 +63,21 @@ export class MajsoulProvider extends Provider {
     })
   }
 
-  getAccountZone(account_id: number) {
+  getAccountZone(account_id: number): AccountZone {
     const prefix = account_id >> 23
-    if (0 <= prefix && prefix <= 6) return AccountZone.CN
-    else if (7 <= prefix && prefix <= 12) return AccountZone.JP
-    else if (13 <= prefix && prefix <= 15) return AccountZone.EN
-    else return AccountZone.UN
+    if (0 <= prefix && prefix <= 6) return 'Ⓒ'
+    else if (7 <= prefix && prefix <= 12) return 'Ⓙ'
+    else if (13 <= prefix && prefix <= 15) return 'Ⓔ'
+    else return 'Ⓝ'
   }
 
-  async queryNicknameFromAccountId(account_id: number) {
-    return (await this.ctx.mahjong.database.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map')
+  async queryNicknameFromAccountId(account_id: number): Promise<string> {
+    return (await this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map')
       .findOne({_id: account_id}))?.nickname
   }
 
   async queryMultiNicknameFromAccountId(account_ids: number[]) {
-    let cursor = this.ctx.mahjong.database.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map').find(
+    let cursor = this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map').find(
       { _id: { $in: account_ids } }
     )
     let ret: {
@@ -112,7 +112,7 @@ export class MajsoulProvider extends Provider {
   }
 
   setAccountMap(account_id: number, nickname: string, starttime: number = 0) {
-    return this.ctx.mahjong.database.db('majsoul').collection<DatabaseProvider.IdDocument<number>>('account_map').updateOne(
+    return this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map').updateOne(
       { _id: account_id }, {$setOnInsert: {
         _id: account_id,
         nickname,
@@ -123,12 +123,7 @@ export class MajsoulProvider extends Provider {
 
 }
 
-enum AccountZone {
-  CN = 'Ⓒ',
-  JP = 'Ⓙ',
-  EN = 'Ⓔ',
-  UN = 'Ⓝ',
-}
+export type AccountZone = 'Ⓒ' | 'Ⓙ' | 'Ⓔ' | 'Ⓝ'
 
 export namespace MajsoulProvider {
   export interface Config {

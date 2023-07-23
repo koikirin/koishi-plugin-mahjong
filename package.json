@@ -1,7 +1,7 @@
 {
   "name": "@hieuzest/koishi-plugin-mahjong",
   "description": "Provide service for mahjong backend",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -25,7 +25,6 @@
     "service": {
       "implements": ["mahjong"],
       "required": ["database"]
-    },
-    "hidden": true
+    }
   }
 }

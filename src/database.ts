@@ -30,7 +30,7 @@ export namespace DatabaseProvider {
   export const Config: Schema<Config> = Schema.object({
     databaseUri: Schema.string().default('mongodb://localhost:27017/')
   }).description('Database')
-  
-  export type IdDocument<T> = { _id: T } & Document
 
 }
+
+export type IdDocument<T> = { _id: T } & Document
