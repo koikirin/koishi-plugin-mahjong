@@ -31,5 +31,4 @@ export abstract class Provider extends Service {
     super(ctx, `mahjong.${key}`, options.immediate)
     Provider.define(key)
   }
-
 }

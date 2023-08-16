@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from 'axios'
 import { Context, Quester, Schema } from 'koishi'
-import { DatabaseProvider, IdDocument } from './database'
+import { IdDocument } from './database'
 import { Provider } from './service'
 
 export class MajsoulProvider extends Provider {
@@ -16,28 +16,28 @@ export class MajsoulProvider extends Provider {
   getPaipuHead<T=any>(uuid: string, config?: AxiosRequestConfig) {
     return this.http.get<T>(`${this.config.gatewayUri}/paipu_head`, {
       params: { uuid },
-      ...config
+      ...config,
     })
   }
 
   getPaipu<T=any>(uuid: string, config?: AxiosRequestConfig) {
     return this.http.get<T>(`${this.config.gatewayUri}/paipu`, {
       params: { uuid },
-      ...config
+      ...config,
     })
   }
-  
+
   getObToken<T=any>(uuid: string, config?: AxiosRequestConfig) {
     return this.http.get<T>(`${this.config.gatewayUri}/token`, {
       params: { uuid },
-      ...config
+      ...config,
     })
   }
 
   getLivelist<T=any>(fid: string, config?: AxiosRequestConfig) {
     return this.http.get<T>(`${this.config.gatewayUri}/livelist`, {
       params: { id: fid },
-      ...config
+      ...config,
     })
   }
 
@@ -46,60 +46,60 @@ export class MajsoulProvider extends Provider {
       params: {
         func: 'fetchCustomizedContestByContestId',
         data: JSON.stringify({
-          contest_id: fid
-        })
+          contest_id: fid,
+        }),
       },
-      ...config
+      ...config,
     })
   }
 
   execute<T=any>(func: string, data: object, config?: AxiosRequestConfig) {
     return this.http.get<T>(`${this.config.gatewayUri}/execute`, {
       params: {
-        func: func,
-        data: JSON.stringify(data)
+        func,
+        data: JSON.stringify(data),
       },
-      ...config
+      ...config,
     })
   }
 
-  getAccountZone(account_id: number): AccountZone {
-    const prefix = account_id >> 23
-    if (0 <= prefix && prefix <= 6) return 'Ⓒ'
-    else if (7 <= prefix && prefix <= 12) return 'Ⓙ'
-    else if (13 <= prefix && prefix <= 15) return 'Ⓔ'
+  getAccountZone(accountId: number): AccountZone {
+    const prefix = accountId >> 23
+    if (prefix >= 0 && prefix <= 6) return 'Ⓒ'
+    else if (prefix >= 7 && prefix <= 12) return 'Ⓙ'
+    else if (prefix >= 13 && prefix <= 15) return 'Ⓔ'
     else return 'Ⓝ'
   }
 
-  async queryNicknameFromAccountId(account_id: number): Promise<string> {
+  async queryNicknameFromAccountId(accountId: number): Promise<string> {
     return (await this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map')
-      .findOne({_id: account_id}))?.nickname
+      .findOne({ _id: accountId }))?.nickname
   }
 
-  async queryMultiNicknameFromAccountId(account_ids: number[]) {
-    let cursor = this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map').find(
-      { _id: { $in: account_ids } }
+  async queryMultiNicknameFromAccountId(accountIds: number[]) {
+    const cursor = this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map').find(
+      { _id: { $in: accountIds } },
     )
-    let ret: {
+    const ret: {
       [key: number]: string
     } = {}
-    for (const aid of account_ids) ret[aid] = null
+    for (const aid of accountIds) ret[aid] = null
     for await (const doc of cursor) ret[<number><any>doc._id] = doc.nickname
     return ret
   }
 
   async queryAccountIdFromNickname(nickname: string) {
-    let cursor = this.ctx.mahjong.database.db('majsoul').collection('account_map').find({nickname})
-    let ret: number[] = []
-    for await(const doc of cursor) ret.push(<number><any>doc._id)
+    const cursor = this.ctx.mahjong.database.db('majsoul').collection('account_map').find({ nickname })
+    const ret: number[] = []
+    for await (const doc of cursor) ret.push(<number><any>doc._id)
     return ret
   }
 
   async queryMultiAccountIdFromNickname(nicknames: string[]) {
-    let cursor = this.ctx.mahjong.database.db('majsoul').collection('account_map').find(
-      { nickname: { $in: nicknames } }
+    const cursor = this.ctx.mahjong.database.db('majsoul').collection('account_map').find(
+      { nickname: { $in: nicknames } },
     )
-    let ret: {
+    const ret: {
       [key: string]: {
         [key: number]: number
       }
@@ -111,16 +111,17 @@ export class MajsoulProvider extends Provider {
     return ret
   }
 
-  setAccountMap(account_id: number, nickname: string, starttime: number = 0) {
+  setAccountMap(accountId: number, nickname: string, starttime: number = 0) {
     return this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map').updateOne(
-      { _id: account_id }, {$setOnInsert: {
-        _id: account_id,
-        nickname,
-        starttime
-      }}
+      { _id: accountId }, {
+        $setOnInsert: {
+          _id: accountId,
+          nickname,
+          starttime,
+        },
+      },
     )
   }
-
 }
 
 export type AccountZone = 'Ⓒ' | 'Ⓙ' | 'Ⓔ' | 'Ⓝ'
@@ -129,9 +130,9 @@ export namespace MajsoulProvider {
   export interface Config {
     gatewayUri: string
   }
-  
+
   export const Config: Schema<Config> = Schema.object({
-    gatewayUri: Schema.string().default('http://localhost:7236')
+    gatewayUri: Schema.string().default('http://localhost:7236'),
   }).description('Majsoul')
-  
+
 }

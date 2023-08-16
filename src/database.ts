@@ -26,9 +26,9 @@ export namespace DatabaseProvider {
   export interface Config {
     databaseUri: string
   }
-  
+
   export const Config: Schema<Config> = Schema.object({
-    databaseUri: Schema.string().default('mongodb://localhost:27017/')
+    databaseUri: Schema.string().default('mongodb://localhost:27017/'),
   }).description('Database')
 
 }

@@ -17,7 +17,6 @@ declare module 'koishi' {
 export interface Mahjong extends Mahjong.Services {}
 
 export class Mahjong extends Service {
-
   constructor(ctx: Context, private config: Mahjong.Config) {
     super(ctx, 'mahjong')
     ctx.plugin(DatabaseProvider)
@@ -35,7 +34,7 @@ export namespace Mahjong {
     database: DatabaseProvider.Config
     majsoul: MajsoulProvider.Config
   }
-  
+
   export const Config: Schema<Config> = Schema.object({
     database: DatabaseProvider.Config,
     majsoul: MajsoulProvider.Config,
