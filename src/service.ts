@@ -19,10 +19,10 @@ export abstract class Provider extends Service {
     const key = `mahjong.${name}`
     Object.defineProperty(Mahjong.prototype, name, {
       get(this: Mahjong) {
-        return this.caller[key]
+        return this[Context.current][key]
       },
       set(this: Mahjong, value) {
-        this.caller[key] = value
+        this[Context.current][key] = value
       },
     })
   }

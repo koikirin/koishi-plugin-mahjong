@@ -4,7 +4,7 @@ import { IdDocument } from './database'
 import { Provider } from './service'
 
 export class MajsoulProvider extends Provider {
-  static using = ['mahjong.database']
+  static using = ['mahjong', 'mahjong.database']
 
   private http: Quester
 
