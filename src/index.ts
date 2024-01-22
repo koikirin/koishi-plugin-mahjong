@@ -17,10 +17,10 @@ declare module 'koishi' {
 export interface Mahjong extends Mahjong.Services {}
 
 export class Mahjong extends Service {
-  constructor(ctx: Context, private config: Mahjong.Config) {
+  constructor(ctx: Context, config: Mahjong.Config) {
     super(ctx, 'mahjong')
-    ctx.plugin(DatabaseProvider)
-    ctx.plugin(MajsoulProvider)
+    ctx.plugin(DatabaseProvider, config)
+    ctx.plugin(MajsoulProvider, config)
   }
 }
 
