@@ -1,12 +1,13 @@
-import { Context, Schema } from 'koishi'
+import { Context, Schema, Service } from 'koishi'
 import { DbOptions, Document, MongoClient } from 'mongodb'
-import { Provider } from './service'
 
-export class DatabaseProvider extends Provider {
+export class DatabaseProvider extends Service {
+  static using = ['mahjong', 'database']
+
   public client: MongoClient
 
-  constructor(ctx: Context, private config: DatabaseProvider.Config) {
-    super(ctx, 'database', { immediate: false })
+  constructor(ctx: Context, public config: DatabaseProvider.Config) {
+    super(ctx, 'mahjong.database', true)
   }
 
   async start() {

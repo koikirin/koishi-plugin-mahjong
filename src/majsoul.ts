@@ -1,47 +1,45 @@
-import { AxiosRequestConfig } from 'axios'
-import { Context, Quester, Schema } from 'koishi'
+import { Context, Quester, Schema, Service } from 'koishi'
 import { IdDocument } from './database'
-import { Provider } from './service'
 
-export class MajsoulProvider extends Provider {
+export class MajsoulProvider extends Service {
   static using = ['mahjong', 'mahjong.database']
 
   private http: Quester
 
-  constructor(ctx: Context, private config: MajsoulProvider.Config) {
-    super(ctx, 'majsoul', { immediate: true })
+  constructor(ctx: Context, public config: MajsoulProvider.Config) {
+    super(ctx, 'mahjong.majsoul', true)
     this.http = ctx.http.extend({})
   }
 
-  getPaipuHead<T=any>(uuid: string, config?: AxiosRequestConfig) {
+  getPaipuHead<T=any>(uuid: string, config?: any) {
     return this.http.get<T>(`${this.config.gatewayUri}/paipu_head`, {
       params: { uuid },
       ...config,
     })
   }
 
-  getPaipu<T=any>(uuid: string, config?: AxiosRequestConfig) {
+  getPaipu<T=any>(uuid: string, config?: any) {
     return this.http.get<T>(`${this.config.gatewayUri}/paipu`, {
       params: { uuid },
       ...config,
     })
   }
 
-  getObToken<T=any>(uuid: string, config?: AxiosRequestConfig) {
+  getObToken<T=any>(uuid: string, config?: any) {
     return this.http.get<T>(`${this.config.gatewayUri}/token`, {
       params: { uuid },
       ...config,
     })
   }
 
-  getLivelist<T=any>(fid: string, config?: AxiosRequestConfig) {
+  getLivelist<T=any>(fid: string, config?: any) {
     return this.http.get<T>(`${this.config.gatewayUri}/livelist`, {
       params: { id: fid },
       ...config,
     })
   }
 
-  getContest<T=any>(fid: string, config?: AxiosRequestConfig) {
+  getContest<T=any>(fid: string, config?: any) {
     return this.http.get<T>(`${this.config.gatewayUri}/execute`, {
       params: {
         func: 'fetchCustomizedContestByContestId',
@@ -53,7 +51,7 @@ export class MajsoulProvider extends Provider {
     })
   }
 
-  execute<T=any>(func: string, data: object, config?: AxiosRequestConfig) {
+  execute<T=any>(func: string, data: object, config?: any) {
     return this.http.get<T>(`${this.config.gatewayUri}/execute`, {
       params: {
         func,
