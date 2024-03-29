@@ -111,13 +111,14 @@ export class MajsoulProvider extends Service {
 
   setAccountMap(accountId: number, nickname: string, starttime: number = 0) {
     return this.ctx.mahjong.database.db('majsoul').collection<IdDocument<number>>('account_map').updateOne(
-      { _id: accountId }, {
-        $setOnInsert: {
-          _id: accountId,
+      { _id: accountId },
+      {
+        $set: {
           nickname,
           starttime,
         },
       },
+      { upsert: true },
     )
   }
 }
