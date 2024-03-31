@@ -1,21 +1,87 @@
 import { Context, Quester, Schema, Service } from 'koishi'
 import { IdDocument } from './database'
 
+declare module 'koishi' {
+  interface Tables {
+    'majsoul/records': MajsoulDHSRecord
+  }
+}
+
+export interface MajsoulDHSRecord {
+  id: string
+  contestId: string
+  uniqueId: string
+  endtime: number
+  value: MajsoulRecordHead
+}
+
+export interface MajsoulRecordHead {
+  uuid: string
+  start_time: number
+  end_time: number
+  config: any
+  accounts: {
+    account_id: number
+    seat: number
+    nickname: string
+    avatar_id: number
+    character: any
+  }[]
+  result: {
+    players: {
+      seat: number
+      total_point: number
+      part_point_1: number
+      part_point_2: number
+      grading_score: number
+    }[]
+  }
+}
+
 export class MajsoulProvider extends Service {
-  static using = ['mahjong', 'mahjong.database']
+  static using = ['mahjong', 'mahjong.database', 'database']
 
   private http: Quester
 
   constructor(ctx: Context, public config: MajsoulProvider.Config) {
     super(ctx, 'mahjong.majsoul', true)
     this.http = ctx.http.extend({})
+
+    ctx.model.extend('majsoul/records', {
+      id: 'string',
+      contestId: 'string',
+      uniqueId: 'string',
+      endtime: 'unsigned',
+      value: 'json',
+    })
   }
 
-  getPaipuHead<T=any>(uuid: string, config?: any) {
-    return this.http.get<T>(`${this.config.gatewayUri}/paipu_head`, {
+  async getPaipuHead(uuid: string, config?: any, meta?: { contestId?: string }): Promise<{
+    error: any
+    head: MajsoulRecordHead
+  }> {
+    const cursor = await this.ctx.database.get('majsoul/records', uuid)
+    if (cursor.length) return { error: null, head: cursor[0].value }
+
+    const res = await this.http.get<{
+      error: any
+      head: MajsoulRecordHead
+    }>(`${this.config.gatewayUri}/paipu_head`, {
       params: { uuid },
       ...config,
     })
+
+    if (res && !res.error && res.head?.uuid) {
+      this.ctx.database.create('majsoul/records', {
+        id: res.head.uuid,
+        contestId: meta?.contestId,
+        uniqueId: res.head.config.meta?.contest_uid,
+        endtime: res.head.end_time,
+        value: res.head,
+      })
+    }
+
+    return res
   }
 
   getPaipu<T=any>(uuid: string, config?: any) {

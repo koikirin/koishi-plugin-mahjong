@@ -1,8 +1,9 @@
 import { Context, Schema, Service } from 'koishi'
-import { DatabaseProvider, IdDocument } from './database'
+import { DatabaseProvider } from './database'
 import { MajsoulProvider } from './majsoul'
 
-export { IdDocument }
+export * from './database'
+export * from './majsoul'
 
 type NestedServices = {
   [K in keyof Mahjong.Services as `mahjong.${K}`]: Mahjong.Services[K]
