@@ -38,6 +38,13 @@ export interface MajsoulRecordHead {
   }
 }
 
+interface MajsoulGatewayError {
+  err?: true
+  msg?: string
+  code?: number
+  extra?: any
+}
+
 export class MajsoulProvider extends Service {
   static using = ['mahjong', 'mahjong.database', 'database']
 
@@ -57,22 +64,17 @@ export class MajsoulProvider extends Service {
   }
 
   async getPaipuHead(uuid: string, config?: any, meta?: { contestId?: string }): Promise<{
-    error: any
-    code?: number
     head: MajsoulRecordHead
-  }> {
+  } & MajsoulGatewayError> {
     const cursor = await this.ctx.database.get('majsoul/records', uuid)
-    if (cursor.length) return { error: null, head: cursor[0].value }
+    if (cursor.length) return { head: cursor[0].value }
 
-    const res = await this.http.get<{
-      error: any
-      head: MajsoulRecordHead
-    }>(`${this.config.gatewayUri}/paipu_head`, {
+    const res = await this.http.get(`${this.config.gatewayUri}/paipu_head`, {
       params: { uuid },
       ...config,
     })
 
-    if (res && !res.error && res.head?.uuid) {
+    if (res && !res.err && res.head?.uuid) {
       this.ctx.database.create('majsoul/records', {
         id: res.head.uuid,
         contestId: meta?.contestId,
