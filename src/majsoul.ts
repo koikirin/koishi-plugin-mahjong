@@ -58,6 +58,7 @@ export class MajsoulProvider extends Service {
 
   async getPaipuHead(uuid: string, config?: any, meta?: { contestId?: string }): Promise<{
     error: any
+    code?: number
     head: MajsoulRecordHead
   }> {
     const cursor = await this.ctx.database.get('majsoul/records', uuid)
