@@ -190,6 +190,18 @@ export class MajsoulProvider extends Service {
       { upsert: true },
     )
   }
+
+  decodeAccountId(e: number) {
+    const fa = 67108863, ba = -67108864
+    if ((e -= 1e7) <= 0) { return 0 }
+    let t = e & fa
+    return t = (131071 & t) << 9 | t >> 17,
+    t = (131071 & t) << 9 | t >> 17,
+    t = (131071 & t) << 9 | t >> 17,
+    t = (131071 & t) << 9 | t >> 17,
+    t = (131071 & t) << 9 | t >> 17,
+    (e & ba) + t ^ 6139246
+  }
 }
 
 export type AccountZone = 'Ⓒ' | 'Ⓙ' | 'Ⓔ' | 'Ⓝ'
