@@ -3,7 +3,7 @@ import { IdDocument } from './database'
 
 declare module 'koishi' {
   interface Tables {
-    'majsoul/records': MajsoulDHSRecord
+    'majsoul.records': MajsoulDHSRecord
   }
 }
 
@@ -54,7 +54,7 @@ export class MajsoulProvider extends Service {
     super(ctx, 'mahjong.majsoul', true)
     this.http = ctx.http.extend({})
 
-    ctx.model.extend('majsoul/records', {
+    ctx.model.extend('majsoul.records', {
       id: 'string',
       contestId: 'string',
       uniqueId: 'string',
@@ -66,7 +66,7 @@ export class MajsoulProvider extends Service {
   async getPaipuHead(uuid: string, config?: any, meta?: { contestId?: string }): Promise<{
     head: MajsoulRecordHead
   } & MajsoulGatewayError> {
-    const cursor = await this.ctx.database.get('majsoul/records', uuid)
+    const cursor = await this.ctx.database.get('majsoul.records', uuid)
     if (cursor.length) return { head: cursor[0].value }
 
     const res = await this.http.get(`${this.config.gatewayUri}/paipu_head`, {
@@ -75,7 +75,7 @@ export class MajsoulProvider extends Service {
     })
 
     if (res && !res.err && res.head?.uuid) {
-      this.ctx.database.create('majsoul/records', {
+      this.ctx.database.create('majsoul.records', {
         id: res.head.uuid,
         contestId: meta?.contestId,
         uniqueId: res.head.config.meta?.contest_uid,
@@ -214,5 +214,4 @@ export namespace MajsoulProvider {
   export const Config: Schema<Config> = Schema.object({
     gatewayUri: Schema.string().default('http://localhost:7236'),
   }).description('Majsoul')
-
 }
