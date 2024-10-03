@@ -1,4 +1,4 @@
-import { Context, Quester, Schema, Service } from 'koishi'
+import { Context, Quester, Schema, Service, sleep } from 'koishi'
 import { IdDocument } from './database'
 
 declare module 'koishi' {
@@ -61,6 +61,16 @@ export class MajsoulProvider extends Service {
       endtime: 'unsigned',
       value: 'json',
     })
+
+    if (config.checkInterval && config.livelist.length) {
+      ctx.setInterval(async () => {
+        for (const fid of config.livelist) {
+          this.getLivelist(fid).catch(e => ctx.logger.warn(e))
+          await sleep(config.interInterval)
+        }
+      }, config.checkInterval)
+      ctx.logger.info('livelist updater registered')
+    }
   }
 
   async getPaipuHead(uuid: string, config?: any, meta?: { contestId?: string }): Promise<{
@@ -209,9 +219,17 @@ export type AccountZone = 'Ⓒ' | 'Ⓙ' | 'Ⓔ' | 'Ⓝ'
 export namespace MajsoulProvider {
   export interface Config {
     gatewayUri: string
+    livelist: string[]
+    interInterval: number
+    checkInterval: number
   }
 
   export const Config: Schema<Config> = Schema.object({
     gatewayUri: Schema.string().default('http://localhost:7236'),
+    livelist: Schema.array(Schema.string()).default([
+      '216', '215', '212', '211', '209', '208', '226', '225', '224', '223', '222', '221',
+    ]).role('table'),
+    interInterval: Schema.number().default(1000),
+    checkInterval: Schema.number().default(40000),
   }).description('Majsoul')
 }
