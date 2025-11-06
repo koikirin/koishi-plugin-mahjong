@@ -62,7 +62,7 @@ export class MajsoulProvider extends Service {
       value: 'json',
     })
 
-    if (config.checkInterval && config.livelist.length) {
+    if (config.enableCheck && config.checkInterval && config.livelist.length) {
       ctx.setInterval(async () => {
         for (const fid of config.livelist) {
           this.getLivelist(fid).catch(e => ctx.logger.warn(e))
@@ -218,14 +218,18 @@ export type AccountZone = 'Ⓒ' | 'Ⓙ' | 'Ⓔ' | 'Ⓝ'
 
 export namespace MajsoulProvider {
   export interface Config {
+    enabled: boolean
     gatewayUri: string
+    enableCheck: boolean
     livelist: string[]
     interInterval: number
     checkInterval: number
   }
 
   export const Config: Schema<Config> = Schema.object({
+    enabled: Schema.boolean().default(true),
     gatewayUri: Schema.string().default('http://localhost:7236'),
+    enableCheck: Schema.boolean().default(false),
     livelist: Schema.array(Schema.string()).default([
       '216', '215', '212', '211', '209', '208', '226', '225', '224', '223', '222', '221',
     ]).role('table'),

@@ -7,7 +7,7 @@ export class DatabaseProvider extends Service {
   public client: MongoClient
 
   constructor(ctx: Context, public config: DatabaseProvider.Config) {
-    super(ctx, 'mahjong.database', true)
+    super(ctx, 'mahjong.database')
   }
 
   async start() {
@@ -25,10 +25,12 @@ export class DatabaseProvider extends Service {
 
 export namespace DatabaseProvider {
   export interface Config {
+    enabled: boolean
     databaseUri: string
   }
 
   export const Config: Schema<Config> = Schema.object({
+    enabled: Schema.boolean().default(true),
     databaseUri: Schema.string().default('mongodb://localhost:27017/'),
   }).description('Database')
 

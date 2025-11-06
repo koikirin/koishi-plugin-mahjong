@@ -1,4 +1,5 @@
-import { Context, Schema, Service } from 'koishi'
+import { Context, h, Schema, Service } from 'koishi'
+import { Tokenizer } from '@hieuzest/koishi-plugin-command'
 import { DatabaseProvider } from './database'
 import { MajsoulProvider } from './majsoul'
 
@@ -13,6 +14,12 @@ declare module 'koishi' {
   interface Context extends NestedServices {
     mahjong: Mahjong
   }
+
+  namespace Argv {
+    interface Domain {
+      mjlist: string[]
+    }
+  }
 }
 
 export interface Mahjong extends Mahjong.Services {}
@@ -20,9 +27,47 @@ export interface Mahjong extends Mahjong.Services {}
 export class Mahjong extends Service {
   constructor(ctx: Context, config: Mahjong.Config) {
     super(ctx, 'mahjong', true)
-    ctx.provide('mahjong.database', undefined, true)
-    ctx.plugin(DatabaseProvider, config.database)
-    ctx.plugin(MajsoulProvider, config.majsoul)
+
+    if (config.database.enabled) {
+      ctx.provide('mahjong.database', undefined, true)
+      ctx.plugin(DatabaseProvider, config.database)
+    }
+
+    if (config.majsoul.enabled) {
+      ctx.plugin(MajsoulProvider, config.majsoul)
+    }
+
+    const tokenizer = new Tokenizer()
+
+    tokenizer.define({
+      initiator: '',
+      terminator: null!,
+      quoted: false,
+    })
+
+    tokenizer.define({
+      initiator: '\\',
+      terminator: '',
+      depend: ['', '"'],
+      parse(source: string) {
+        if (!source.length) {
+          return {
+            error: 'No character follows backslash',
+            rest: source,
+          }
+        } else {
+          return {
+            tokens: [{ content: source[0], inters: [], quoted: false, terminator: '' }],
+            rest: source.slice(1),
+            inline: true,
+          }
+        }
+      },
+    })
+
+    ctx.$commander.domain('mjlist', (source) => {
+      return tokenizer.parse(source, '', /\s+|,|\|\|/).tokens?.map(token => token.content)?.map(h.unescape) || []
+    }, { greedy: true })
   }
 }
 
